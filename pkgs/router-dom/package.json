@@ -1,12 +1,13 @@
 {
-  "name": "@muryp/vite-html",
-  "version": "1.0.6",
+  "name": "@muryp/routes.js",
+  "version": "1.0.0",
   "description": "vite plugin for html literal and ",
   "scripts": {
     "build": "tsc && node cmd.mjs",
     "preinstall": "npx only-allow pnpm",
     "lint": "eslint . --report-unused-disable-directives",
-    "released": "pnpm build && pnpm publish --access public"
+    "released": "pnpm build && pnpm publish --access public",
+    "test": "vitest ./test"
   },
   "keywords": [
     "minify",
@@ -15,7 +16,7 @@
     "js",
     "javascript",
     "typescript",
-    "template-literals"
+    "routes"
   ],
   "author": "",
   "license": "MIT",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "esbuild": "0.20.1",
-    "vite": "^5.4.8"
+    "vite": "^5.4.8",
+    "vitest": "^2.1.2"
   }
 }
