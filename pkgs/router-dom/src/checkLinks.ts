@@ -8,56 +8,73 @@ type TArgs = {
 
 export default function ({ url, separatorUrl, routers }: TArgs) {
   const PATH = new URL(url).hash
-    .replace(/\?.*/, '')
     .replace(new RegExp(separatorUrl), '')
+    .replace(/\?.*/, '')
     .replace(/#.*/, '')
     .split('/')
+
   if (PATH[0] === '') {
     return { ARGS: routers._home }
   }
+
   let ARGS: TMurypRouteSub | TMurypRouteListSub | undefined
+  const MiddleWares = []
   let Params: { [key: string]: any } = {}
-  if (PATH.length <= 1) {
-    const NewArgs = routers[PATH[1]] as TMurypRouteSub
+
+  const NewArgs = routers[PATH[0]] as TMurypRouteSub
+  if (NewArgs) {
+    const MiddleWare = NewArgs?._middleware
+    if (MiddleWare) {
+      MiddleWares.push(MiddleWare)
+    }
     ARGS = {
       ...ARGS,
       ...NewArgs,
     }
-  } else {
-    let PATH_OLD = ''
-    for (let i = 0; i < PATH.length; i++) {
-      const KEY = PATH_OLD + '.' + PATH[i]
-      if (routers[KEY]) {
-        PATH_OLD = PATH_OLD + '.' + PATH[i]
-        const NewArgs = routers[PATH[1]] as TMurypRouteSub
+  }
+
+  if (PATH.length > 1) {
+    for (let i = 1; i < PATH.length; i++) {
+      let isParamsArgs = ''
+      for (let KEY in ARGS) {
+        const isParams = KEY.match(/{(.*?)}/)
+        if (isParams) {
+          isParamsArgs = isParams[1]
+        }
+      }
+
+      const PATH_NAME = PATH[i]
+      const NewArgs = ARGS![PATH_NAME as '_callback'] as TMurypRouteSub
+      if (NewArgs) {
+        const MiddleWare = NewArgs?._middleware
+        if (MiddleWare) {
+          MiddleWares.push(MiddleWare)
+        }
+
         ARGS = {
           ...ARGS,
           ...NewArgs,
         }
-      } else {
-        const getKey = Object.keys(routers[PATH_OLD])
-        for (let j = 0; j < getKey.length; j++) {
-          const getParams = getKey[j].match(/\{(.*)\}/)
-          if (getParams) {
-            Params[getParams[1]] = PATH[j]
-            PATH_OLD = PATH_OLD + '.' + getKey[j]
-            const NewArgs = routers[PATH[1]] as TMurypRouteSub
-            ARGS = {
-              ...ARGS,
-              ...NewArgs,
-            }
-            break
-          } else {
-            const notFound = ARGS?.[404] as TMurypRouteListSub | TMurypRouteSub
-            ARGS = undefined
-            ARGS = { 404: notFound }
-          }
+      } else if (isParamsArgs !== '') {
+        Params[isParamsArgs[1]] = PATH[i]
+
+        const NewArgs_ = ARGS![
+          `{${isParamsArgs}}` as '_callback'
+        ] as TMurypRouteSub
+        const MiddleWare = NewArgs_?._middleware
+        if (MiddleWare) {
+          MiddleWares.push(MiddleWare)
+        }
+
+        ARGS = {
+          ...ARGS,
+          ...NewArgs_,
         }
       }
     }
   }
-  if (ARGS?._callback) {
-    return { ARGS: ARGS as TMurypRouteSub, Params }
+  if (ARGS?._callback || ARGS?._render) {
+    return { ARGS: ARGS as TMurypRouteSub, Params, MiddleWares }
   } else {
     if (ARGS?.[404]) {
       return { ARGS: ARGS?.[404] as TMurypRouteSub, Params }

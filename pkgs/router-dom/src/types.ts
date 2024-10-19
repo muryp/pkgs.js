@@ -30,7 +30,7 @@ export type TMurypRouteSub = {
   _target?: string
   _layouts?: TLayouts
   _render?: TRender
-  _callback: TMurypRouteCallback
+  _callback?: TMurypRouteCallback
   404?: TMurypRouteSub
   _middleware?: TMurypMiddleware
 }

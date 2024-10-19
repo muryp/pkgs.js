@@ -1,5 +1,5 @@
 {
-  "name": "@muryp/routes.js",
+  "name": "@muryp/routesJs",
   "version": "1.0.0",
   "description": "vite plugin for html literal and ",
   "scripts": {
@@ -30,7 +30,7 @@
       "import": "./dist/index.mjs"
     },
     "./type": {
-      "types": "./type.ts"
+      "types": "./dist/types.d.ts"
     }
   },
   "files": [

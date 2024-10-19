@@ -18,13 +18,19 @@ export default async function (Args: TMurypRouteArgs) {
   const getRoutes = checkLinks({ url, separatorUrl, routers: Args.routers })
   if (getRoutes) {
     FnArgs.params = getRoutes?.Params
-    //TODO: MIDDLEWARE IS ARRAY
-    const midleware = getRoutes.ARGS._middleware
+
+    const midleware = getRoutes.MiddleWares
     if (midleware) {
-      if (midleware(FnArgs) === false) {
-        return
+      // const isNext = true
+      for (let i = 0; i < midleware.length; i++) {
+        const middleware = midleware[i]
+        const isNext = middleware(FnArgs)
+        if (!isNext) {
+          return
+        }
       }
     }
+
     if (!getRoutes.ARGS._callback) {
       if (getRoutes.ARGS._middleware) {
         const middleware = getRoutes.ARGS._middleware
@@ -35,6 +41,7 @@ export default async function (Args: TMurypRouteArgs) {
       }
       const TARGET_ID =
         (getRoutes.ARGS?._target as string) || Args.global?._target
+
       if (TARGET_ID) {
         const TARGET = document.getElementById(TARGET_ID)
         if (TARGET) {
@@ -44,7 +51,7 @@ export default async function (Args: TMurypRouteArgs) {
             CONTENT = RENDER(FnArgs)
           }
           if (typeof RENDER === 'string') {
-            CONTENT = CONTENT
+            CONTENT = RENDER
           }
           const LAYOUT = getRoutes.ARGS._layouts
           if (LAYOUT) {
@@ -58,7 +65,10 @@ export default async function (Args: TMurypRouteArgs) {
           TARGET.innerHTML = CONTENT
         }
       }
-      const CALLBACK = getRoutes.ARGS._callback as TMurypRouteCallback
+
+      const CALLBACK = getRoutes.ARGS._callback as
+        | TMurypRouteCallback
+        | undefined
       if (CALLBACK) {
         if (typeof CALLBACK === 'object') {
           const getImport = await CALLBACK
@@ -68,14 +78,24 @@ export default async function (Args: TMurypRouteArgs) {
           CALLBACK(FnArgs)
         }
       }
+
+      const TARGET_ID_SCROLL = new URL(url).hash
+        .replace(new RegExp(separatorUrl), '')
+        .split('#')[1]
+      // goto id hash
+      if (TARGET_ID_SCROLL) {
+        document.getElementById(TARGET_ID_SCROLL)!.scrollIntoView()
+      }
     }
   } else {
     const RENDER = Args.routers[404]._render as string
-    const CB = Args.routers[404]._callback as () => void
+    const CB = Args.routers[404]._callback
     const ID = Args.global._target
     if (ID && RENDER) {
       document.getElementById(ID)!.innerHTML = RENDER
     }
-    CB()
+    if (typeof CB === 'function') {
+      CB({ url })
+    }
   }
 }
