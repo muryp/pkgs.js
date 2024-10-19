@@ -4,7 +4,7 @@ import { readFileSync } from 'fs'
 const getPkg = JSON.parse(readFileSync('./package.json'))
 
 const Opts = {
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['src/index.ts', 'src/transformUrlToObj.ts'],
   bundle: true,
   minify: true,
   outdir: 'dist',

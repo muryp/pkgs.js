@@ -31,14 +31,7 @@ export default async function (Args: TMurypRouteArgs) {
       }
     }
 
-    if (!getRoutes.ARGS._callback) {
-      if (getRoutes.ARGS._middleware) {
-        const middleware = getRoutes.ARGS._middleware
-        const isNext = middleware(FnArgs)
-        if (!isNext) {
-          return
-        }
-      }
+    if (getRoutes.ARGS._callback || getRoutes.ARGS._render) {
       const TARGET_ID =
         (getRoutes.ARGS?._target as string) || Args.global?._target
 

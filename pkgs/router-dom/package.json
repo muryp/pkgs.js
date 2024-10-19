@@ -29,6 +29,11 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     },
+    "./transform": {
+      "types": "./dist/transformUrlToObj.d.ts",
+      "require": "./dist/transformUrlToObj.cjs",
+      "import": "./dist/transformUrlToObj.mjs"
+    },
     "./type": {
       "types": "./dist/types.d.ts"
     }
